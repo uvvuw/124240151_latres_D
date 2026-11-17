@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import 'services/session_service.dart';
-import 'services/notification_service.dart';
 import 'pages/login_page.dart';
 import 'pages/main_page.dart';
+import 'services/notification_service.dart';
+import 'services/session_service.dart';
+import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Toko Online',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
+      theme: AppTheme.light,
       home: loggedIn ? const MainPage() : const LoginPage(),
     );
   }
