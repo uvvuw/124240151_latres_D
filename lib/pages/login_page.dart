@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../services/session_service.dart';
+import '../theme/app_theme.dart';
 import 'main_page.dart';
 
 const String nim = '124240151';
@@ -42,102 +44,146 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        width: 68,
-                        height: 68,
-                        decoration: BoxDecoration(
-                          color: scheme.primary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Icon(
-                          Icons.shopping_bag_outlined,
-                          size: 36,
-                          color: scheme.onPrimary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Toko Online',
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Masuk untuk mulai belanja.',
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                    const SizedBox(height: 32),
-                    TextFormField(
-                      controller: _userCtrl,
-                      textInputAction: TextInputAction.next,
-                      autofillHints: const [AutofillHints.username],
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.person_outline),
-                        labelText: 'Username',
-                      ),
-                      validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Username wajib diisi'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passCtrl,
-                      obscureText: _obscure,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _login(),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        labelText: 'Password',
-                        suffixIcon: IconButton(
-                          tooltip: _obscure
-                              ? 'Tampilkan password'
-                              : 'Sembunyikan password',
-                          icon: Icon(
-                            _obscure
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(gradient: AppTheme.headerGradient),
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 76,
+                          height: 76,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
                           ),
-                          onPressed: () => setState(() => _obscure = !_obscure),
+                          child: Icon(
+                            Icons.shopping_bag_rounded,
+                            size: 40,
+                            color: scheme.primary,
+                          ),
                         ),
                       ),
-                      validator: (v) {
-                        final value = v?.trim() ?? '';
-                        if (value.isEmpty) return 'Password wajib diisi';
-                        if (value != nim) return 'Password salah';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 28),
-                    FilledButton(
-                      onPressed: _loading ? null : _login,
-                      child: _loading
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                color: Colors.white,
+                      const SizedBox(height: 18),
+                      const Text(
+                        'Toko Online',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Belanja apa saja, kapan saja.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.85),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Text(
+                                'Masuk',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.ink,
+                                ),
                               ),
-                            )
-                          : const Text('Login'),
-                    ),
-                  ],
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Masukkan username dan password kamu.',
+                                style: TextStyle(color: AppTheme.muted),
+                              ),
+                              const SizedBox(height: 20),
+                              TextFormField(
+                                controller: _userCtrl,
+                                textInputAction: TextInputAction.next,
+                                autofillHints: const [AutofillHints.username],
+                                decoration: const InputDecoration(
+                                  prefixIcon: Icon(Icons.person_outline),
+                                  labelText: 'Username',
+                                ),
+                                validator: (v) =>
+                                    (v == null || v.trim().isEmpty)
+                                    ? 'Username wajib diisi'
+                                    : null,
+                              ),
+                              const SizedBox(height: 14),
+                              TextFormField(
+                                controller: _passCtrl,
+                                obscureText: _obscure,
+                                textInputAction: TextInputAction.done,
+                                onFieldSubmitted: (_) => _login(),
+                                decoration: InputDecoration(
+                                  prefixIcon: const Icon(Icons.lock_outline),
+                                  labelText: 'Password',
+                                  suffixIcon: IconButton(
+                                    tooltip: _obscure
+                                        ? 'Tampilkan password'
+                                        : 'Sembunyikan password',
+                                    icon: Icon(
+                                      _obscure
+                                          ? Icons.visibility_outlined
+                                          : Icons.visibility_off_outlined,
+                                    ),
+                                    onPressed: () =>
+                                        setState(() => _obscure = !_obscure),
+                                  ),
+                                ),
+                                validator: (v) {
+                                  final value = v?.trim() ?? '';
+                                  if (value.isEmpty)
+                                    return 'Password wajib diisi';
+                                  if (value != nim) return 'Password salah';
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 24),
+                              FilledButton(
+                                onPressed: _loading ? null : _login,
+                                child: _loading
+                                    ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Text('Login'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

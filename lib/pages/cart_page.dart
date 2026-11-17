@@ -6,6 +6,7 @@ import '../services/session_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/product_image.dart';
+import '../widgets/qty_stepper.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -33,6 +34,9 @@ class _CartPageState extends State<CartPage> {
     messenger.clearSnackBars();
     messenger.showSnackBar(
       SnackBar(
+        // SnackBar yang punya action tidak hilang sendiri kecuali persist: false
+        persist: false,
+        duration: const Duration(seconds: 4),
         content: Text('${item['title']} dihapus dari keranjang'),
         action: SnackBarAction(
           label: 'Urungkan',
@@ -60,7 +64,7 @@ class _CartPageState extends State<CartPage> {
           FilledButton(
             style: FilledButton.styleFrom(
               minimumSize: const Size(90, 42),
-              backgroundColor: Colors.red.shade600,
+              backgroundColor: AppTheme.danger,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Kosongkan'),
@@ -76,6 +80,9 @@ class _CartPageState extends State<CartPage> {
     messenger.clearSnackBars();
     messenger.showSnackBar(
       SnackBar(
+        // SnackBar yang punya action tidak hilang sendiri kecuali persist: false
+        persist: false,
+        duration: const Duration(seconds: 4),
         content: const Text('Keranjang dikosongkan'),
         action: SnackBarAction(
           label: 'Urungkan',
@@ -161,33 +168,47 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildEmpty(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.shopping_cart_outlined,
-              size: 64,
-              color: Colors.grey.shade400,
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: scheme.primaryContainer.withValues(alpha: 0.6),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.shopping_cart_outlined,
+                size: 48,
+                color: scheme.primary,
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 18),
             const Text(
               'Keranjang masih kosong',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.ink,
+              ),
             ),
             const SizedBox(height: 6),
-            Text(
+            const Text(
               'Pilih produk di Home, lalu tekan Add to Cart.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: AppTheme.muted),
             ),
-            const SizedBox(height: 20),
-            FilledButton.tonal(
-              style: FilledButton.styleFrom(minimumSize: const Size(160, 46)),
+            const SizedBox(height: 22),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(minimumSize: const Size(180, 48)),
               onPressed: () => Navigator.pop(context),
-              child: const Text('Mulai belanja'),
+              icon: const Icon(Icons.storefront_outlined),
+              label: const Text('Mulai belanja'),
             ),
           ],
         ),
@@ -213,23 +234,18 @@ class _CartTile extends StatelessWidget {
     final qty = item['qty'] as int;
     // Item lama (sebelum ada field stock) dianggap tanpa batas
     final maxQty = (item['stock'] as int?) ?? 9999;
-    final scheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
-      ),
+      decoration: AppTheme.card(),
       child: Column(
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 64,
-                height: 64,
+                width: 72,
+                height: 72,
                 decoration: BoxDecoration(
                   color: AppTheme.soft,
                   borderRadius: BorderRadius.circular(12),
@@ -237,8 +253,8 @@ class _CartTile extends StatelessWidget {
                 clipBehavior: Clip.antiAlias,
                 child: ProductImage(
                   url: item['thumbnail'],
-                  width: 64,
-                  height: 64,
+                  width: 72,
+                  height: 72,
                 ),
               ),
               const SizedBox(width: 12),
@@ -251,25 +267,26 @@ class _CartTile extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         fontSize: 15,
+                        color: AppTheme.ink,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${money(price)} per barang',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade600,
+                        color: AppTheme.muted,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       money(price * qty),
-                      style: TextStyle(
-                        fontSize: 16,
+                      style: const TextStyle(
+                        fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: scheme.primary,
+                        color: AppTheme.primaryDark,
                       ),
                     ),
                   ],
@@ -282,74 +299,27 @@ class _CartTile extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              _QtyStepper(
+              QtyStepper(
                 qty: qty,
-                canIncrease: qty < maxQty,
+                min: 1,
+                max: maxQty,
+                compact: true,
                 onChanged: onQtyChanged,
               ),
               const Spacer(),
               TextButton.icon(
                 style: TextButton.styleFrom(
-                  foregroundColor: Colors.red.shade600,
+                  foregroundColor: AppTheme.danger,
                   visualDensity: VisualDensity.compact,
                 ),
                 onPressed: onDelete,
                 icon: const Icon(Icons.delete_outline, size: 20),
                 label: const Text(
                   'Hapus',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QtyStepper extends StatelessWidget {
-  final int qty;
-  final bool canIncrease;
-  final ValueChanged<int> onChanged;
-
-  const _QtyStepper({
-    required this.qty,
-    required this.canIncrease,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.soft,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            tooltip: 'Kurangi',
-            visualDensity: VisualDensity.compact,
-            iconSize: 20,
-            icon: const Icon(Icons.remove),
-            onPressed: qty > 1 ? () => onChanged(qty - 1) : null,
-          ),
-          SizedBox(
-            width: 28,
-            child: Text(
-              '$qty',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Tambah',
-            visualDensity: VisualDensity.compact,
-            iconSize: 20,
-            icon: const Icon(Icons.add),
-            onPressed: canIncrease ? () => onChanged(qty + 1) : null,
           ),
         ],
       ),
@@ -387,20 +357,24 @@ class _TotalBar extends StatelessWidget {
               children: [
                 const Text(
                   'Total',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    color: AppTheme.ink,
+                  ),
                 ),
                 Text(
                   '$itemCount produk, $totalQty barang',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: const TextStyle(fontSize: 12, color: AppTheme.muted),
                 ),
               ],
             ),
             Text(
               money(total),
-              style: TextStyle(
-                fontSize: 22,
+              style: const TextStyle(
+                fontSize: 24,
                 fontWeight: FontWeight.w800,
-                color: Colors.green.shade700,
+                color: AppTheme.success,
               ),
             ),
           ],

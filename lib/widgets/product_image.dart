@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
+
 class ProductImage extends StatelessWidget {
   final String url;
   final double? width;
   final double? height;
   final BoxFit fit;
+  final int cacheWidth;
 
   const ProductImage({
     super.key,
@@ -12,6 +15,7 @@ class ProductImage extends StatelessWidget {
     this.width,
     this.height,
     this.fit = BoxFit.contain,
+    this.cacheWidth = 400,
   });
 
   @override
@@ -21,6 +25,8 @@ class ProductImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
+      // Decode gambar di ukuran kecil supaya hemat memori
+      cacheWidth: cacheWidth,
       loadingBuilder: (context, child, progress) {
         if (progress == null) return child;
         final total = progress.expectedTotalBytes;
@@ -45,7 +51,10 @@ class ProductImage extends StatelessWidget {
         width: width,
         height: height,
         child: const Center(
-          child: Icon(Icons.image_not_supported_outlined, color: Colors.grey),
+          child: Icon(
+            Icons.image_not_supported_outlined,
+            color: AppTheme.mutedLight,
+          ),
         ),
       ),
     );
